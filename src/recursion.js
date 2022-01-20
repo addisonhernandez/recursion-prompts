@@ -7,26 +7,79 @@
 // Example: 5! = 5 x 4 x 3 x 2 x 1 = 120
 // factorial(5); // 120
 var factorial = function(n) {
+  if (n < 0) {
+    return null;
+  }
+
+  if (n < 2) {
+    return 1;
+  }
+
+  return n * factorial(n - 1);
 };
 
 // 2. Compute the sum of an array of integers.
 // sum([1,2,3,4,5,6]); // 21
 var sum = function(array) {
+  if (array.length === 0) {
+    return 0;
+  }
+
+  return array[0] + sum(array.slice(1));
 };
 
 // 3. Sum all numbers in an array containing nested arrays.
 // arraySum([1,[2,3],[[4]],5]); // 15
 var arraySum = function(array) {
+  if (array.length === 0) {
+    return 0;
+  }
+
+  const firstElem = (Array.isArray(array[0])) ? arraySum(array[0]) : array[0];
+
+  return firstElem + arraySum(array.slice(1));
 };
 
 // 4. Check if a number is even.
 var isEven = function(n) {
+  // Base Cases:
+  if (n === 0) {
+    return true;
+  }
+
+  if (n === 1) {
+    return false;
+  }
+
+  // Handle Edge Case: n < 0
+  // if (n < 0) {
+  //   return isEven(-n);
+  // }
+
+  // Subtracting 2 maintains parity
+  // return isEven(n - 2);
+
+  // Really fast hack:
+  // Consider only the final bit of twos-complement binary number (n & 1)
+  // For all odd numbers  -> LSB := 1
+  // For all even numbers -> LSB := 0
+  // This reduces our runtime complexity and space complexity to O(1)!
+  return isEven(n & 1);
 };
 
 // 5. Sum all integers below a given integer.
 // sumBelow(10); // 45
 // sumBelow(7); // 21
 var sumBelow = function(n) {
+  if (n  === 0) {
+    return 0;
+  }
+
+  if (n < 0) {
+    return -sumBelow(-n);
+  }
+
+  return (n - 1) + sumBelow(n - 1);
 };
 
 // 6. Get the integers within a range (x, y).
