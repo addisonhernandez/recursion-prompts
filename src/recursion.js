@@ -122,6 +122,14 @@ var countOccurrence = function(array, value) {
 // 21. Write a recursive version of map.
 // rMap([1,2,3], timesTwo); // [2,4,6]
 var rMap = function(array, callback) {
+  if (array.length === 0) {
+    return [];
+  }
+
+  var mappedArray = [callback(array[0])];
+  // var mappedArray = rMap(array.slice(1), callback);
+  mappedArray.push.apply(mappedArray, rMap(array.slice(1), callback));
+  return mappedArray;
 };
 
 // 22. Write a function that counts the number of times a key occurs in an object.
@@ -129,6 +137,21 @@ var rMap = function(array, callback) {
 // countKeysInObj(obj, 'r') // 1
 // countKeysInObj(obj, 'e') // 2
 var countKeysInObj = function(obj, key) {
+  if (typeof obj !== 'object') {
+    return 0;
+  }
+
+  var keyCount = 0;
+
+  for (var property in obj) {
+    if (property === key) {
+      keyCount++;
+    }
+
+    keyCount += countKeysInObj(obj[property], key);
+  }
+
+  return keyCount;
 };
 
 // 23. Write a function that counts the number of times a value occurs in an object.
@@ -149,6 +172,7 @@ var replaceKeysInObj = function(obj, oldKey, newKey) {
 // fibonacci(5); // [0,1,1,2,3,5]
 // Note: The 0 is not counted.
 var fibonacci = function(n) {
+  
 };
 
 // 26. Return the Fibonacci number located at index n of the Fibonacci sequence.
@@ -157,6 +181,14 @@ var fibonacci = function(n) {
 // nthFibo(7); // 13
 // nthFibo(3); // 2
 var nthFibo = function(n) {
+  if (n < 0) {
+    return null;
+  }
+  if (n <= 1) {
+    return n;
+  }
+
+  return nthFibo(n - 1) + nthFibo(n - 2);
 };
 
 // 27. Given an array of words, return a new array containing each word capitalized.
