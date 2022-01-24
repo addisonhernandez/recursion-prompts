@@ -503,17 +503,33 @@ var nestedEvenSum = function(obj) {
 // 30. Flatten an array containing nested arrays.
 // flatten([1,[2],[3,[[4]]],5]); // [1,2,3,4,5]
 var flatten = function(array) {
-  if (array.length === 0) {
-    return [];
-  }
+  var flatArray = [];
+  
+  array.forEach(function (element) {
+    if (Array.isArray(element)) {
+      flatArray.push.apply(flatArray, flatten(element));
+    } else {
+      flatArray.push(element);
+    }
+  });
 
-  var flatArray = flatten(array.slice(1));
-  // TODO: continue work here
+  return flatArray;
 };
 
 // 31. Given a string, return an object containing tallies of each letter.
 // letterTally('potato'); // {p:1, o:2, t:2, a:1}
 var letterTally = function(str, obj) {
+  if (str === '') {
+    return;
+  }
+
+  obj = obj || {};
+
+  obj[str[0]] = (obj[str[0]] || 0) + 1;
+
+  letterTally(str.slice(1), obj);
+
+  return obj;
 };
 
 // 32. Eliminate consecutive duplicates in a list. If the list contains repeated
@@ -522,18 +538,56 @@ var letterTally = function(str, obj) {
 // compress([1,2,2,3,4,4,5,5,5]) // [1,2,3,4,5]
 // compress([1,2,2,3,4,4,2,5,5,5,4,4]) // [1,2,3,4,2,5,4]
 var compress = function(list) {
+  if (list.length === 1) {
+    return list;
+  }
+
+  var compressedList = compress(list.slice(1));
+
+  // compressed list now has the tail of list
+  // if head of list != head of compressed, unshift
+
+  if (list[0] !== compressedList[0]) {
+    compressedList.unshift(list[0]);
+  }
+
+  return compressedList;
 };
 
 // 33. Augment every element in a list with a new value where each element is an array
 // itself.
 // augmentElements([[],[3],[7]], 5); // [[5],[3,5],[7,5]]
 var augmentElements = function(array, aug) {
+  if (array.length === 0) {
+    return;
+  }
+  
+  array[0].push(aug);
+
+  augmentElements(array.slice(1), aug);
+
+  return array;
 };
 
 // 34. Reduce a series of zeroes to a single 0.
 // minimizeZeroes([2,0,0,0,1,4]) // [2,0,1,4]
 // minimizeZeroes([2,0,0,0,1,0,0,4]) // [2,0,1,0,4]
 var minimizeZeroes = function(array) {
+  if (array.length === 1) {
+    return array;
+  }
+
+  var minimizedArray = minimizeZeroes(array.slice(1));
+
+  // minimized now has the tail of array
+  // if head of array is 0
+    // push if head of minimized != 0
+
+  if (array[0] !== 0 || minimizedArray[0] !== 0) {
+    minimizedArray.unshift(array[0]);
+  }
+
+  return minimizedArray;
 };
 
 // 35. Alternate the numbers in an array between positive and negative regardless of
@@ -541,12 +595,52 @@ var minimizeZeroes = function(array) {
 // alternateSign([2,7,8,3,1,4]) // [2,-7,8,-3,1,-4]
 // alternateSign([-2,-7,8,3,-1,4]) // [2,-7,8,-3,1,-4]
 var alternateSign = function(array) {
+  if (array.length === 1) {
+    return [Math.abs(array[0])];
+  }
+
+  var alternatingArray = alternateSign(array.slice(0, -1));
+
+  // alternating now has head of array
+  // if last elem is + -> push -abs(next)
+  // if last elem is - -> push abs(next)
+
+  var nextElem = 0;
+  if (alternatingArray[alternatingArray.length - 1] > 0) {
+    nextElem = -Math.abs(array[array.length - 1]);
+  } else if (alternatingArray[alternatingArray.length - 1] < 0) {
+    nextElem = Math.abs(array[array.length - 1]);
+  }
+
+  alternatingArray.push(nextElem);
+
+  return alternatingArray;
 };
 
 // 36. Given a string, return a string with digits converted to their word equivalent.
 // Assume all numbers are single digits (less than 10).
 // numToText("I have 5 dogs and 6 ponies"); // "I have five dogs and six ponies"
 var numToText = function(str) {
+  if (str.length === 1) {
+    return str;
+  }
+
+  var stringifiedText = numToText(str.slice(1));
+
+  var numLookup = {
+    0: 'zero',
+    1: 'one',
+    2: 'two',
+    3: 'three',
+    4: 'four',
+    5: 'five',
+    6: 'six',
+    7: 'seven',
+    8: 'eight',
+    9: 'nine'
+  }
+
+  return (numLookup[str[0]] || str[0]) + stringifiedText;
 };
 
 
