@@ -1,4 +1,5 @@
 /* jshint esversion: 6 */
+Array.prototype.last = function () { return this[this.length - 1]; };
 
 // Solve the following prompts using recursion.
 
@@ -56,14 +57,19 @@ var isEven = function(n) {
   //   return isEven(-n);
   // }
 
+  // Method 1:
+  // Subtracting 1 flips parity
+  // return !isEven(n - 1);
+
+  // Method 2:
   // Subtracting 2 maintains parity
   // return isEven(n - 2);
 
-  // Really fast hack:
-  // Consider only the final bit of twos-complement binary number (n & 1)
-  // For all odd numbers  -> LSB := 1
-  // For all even numbers -> LSB := 0
-  // This reduces our runtime complexity and space complexity to O(1)!
+  // Method 3: (Really fast hack)
+  // Consider only the final bit of twos-complement binary number (n & 1):
+    // For all odd numbers  -> LSB := 1
+    // For all even numbers -> LSB := 0
+  // This reduces our max recursion depth to two!
   return isEven(n & 1);
 };
 
@@ -94,7 +100,7 @@ var range = function(x, y) {
   if (x + 1 >= y) {
     return [];
   }
-  
+
   return [x + 1, ...range(x + 1, y)];
 
   // ES5 equivalent:
@@ -318,7 +324,7 @@ var fizzBuzz = function(n) {
 
   if (what) {
     yee += 'FizzBuzz';
-  } else if (uh) { 
+  } else if (uh) {
     yee += 'Buzz';
   } else if (yeah) {
     yee += 'Fizz';
@@ -504,7 +510,7 @@ var nestedEvenSum = function(obj) {
 // flatten([1,[2],[3,[[4]]],5]); // [1,2,3,4,5]
 var flatten = function(array) {
   var flatArray = [];
-  
+
   array.forEach(function (element) {
     if (Array.isArray(element)) {
       flatArray.push.apply(flatArray, flatten(element));
@@ -561,7 +567,7 @@ var augmentElements = function(array, aug) {
   if (array.length === 0) {
     return;
   }
-  
+
   array[0].push(aug);
 
   augmentElements(array.slice(1), aug);
@@ -577,14 +583,14 @@ var minimizeZeroes = function(array) {
     return array;
   }
 
-  var minimizedArray = minimizeZeroes(array.slice(1));
+  var minimizedArray = minimizeZeroes(array.slice(0, -1));
 
-  // minimized now has the tail of array
-  // if head of array is 0
-    // push if head of minimized != 0
+  // minimized has the head of array
+  // push if last of array != 0
+  // or if last of array is 0 and last of minimized != 0
 
-  if (array[0] !== 0 || minimizedArray[0] !== 0) {
-    minimizedArray.unshift(array[0]);
+  if (array.last() !== 0 || minimizedArray.last() !== 0) {
+    minimizedArray.push(array.last());
   }
 
   return minimizedArray;
@@ -606,11 +612,13 @@ var alternateSign = function(array) {
   // if last elem is - -> push abs(next)
 
   var nextElem = 0;
-  if (alternatingArray[alternatingArray.length - 1] > 0) {
-    nextElem = -Math.abs(array[array.length - 1]);
-  } else if (alternatingArray[alternatingArray.length - 1] < 0) {
-    nextElem = Math.abs(array[array.length - 1]);
+
+  if (alternatingArray.last() > 0) {
+    nextElem = -Math.abs(array.last());
+  } else if (alternatingArray.last() < 0) {
+    nextElem = Math.abs(array.last());
   }
+  // if last elem == 0, don't do anything
 
   alternatingArray.push(nextElem);
 
@@ -621,11 +629,9 @@ var alternateSign = function(array) {
 // Assume all numbers are single digits (less than 10).
 // numToText("I have 5 dogs and 6 ponies"); // "I have five dogs and six ponies"
 var numToText = function(str) {
-  if (str.length === 1) {
+  if (str === '') {
     return str;
   }
-
-  var stringifiedText = numToText(str.slice(1));
 
   var numLookup = {
     0: 'zero',
@@ -640,7 +646,7 @@ var numToText = function(str) {
     9: 'nine'
   }
 
-  return (numLookup[str[0]] || str[0]) + stringifiedText;
+  return (numLookup[str[0]] || str[0]) + numToText(str.slice(1));
 };
 
 
@@ -654,13 +660,57 @@ var tagCount = function(tag, node) {
 // var array = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
 // binarySearch(array, 5) // 5
 // https://www.khanacademy.org/computing/computer-science/algorithms/binary-search/a/binary-search
-var binarySearch = function(array, target, min, max) {
+var binarySearch = function (array, target, min = 0, max = array.length - 1) {
+  if (min > max) {
+    return null;
+  }
+
+  const mid = Math.trunc((min + max) / 2);
+
+  if (array[mid] < target) {
+    // search the right half
+    return binarySearch(array, target, mid + 1, max);
+  }
+
+  if (array[mid] > target) {
+    // search the left half
+    return binarySearch(array, target, min, mid - 1);
+  }
+
+  return mid;
 };
 
 // 39. Write a merge sort function.
 // mergeSort([34,7,23,32,5,62]) // [5,7,23,32,34,62]
 // https://www.khanacademy.org/computing/computer-science/algorithms/merge-sort/a/divide-and-conquer-algorithms
 var mergeSort = function(array) {
+  if (array.length <= 1) {
+    return array;
+  }
+
+  // DIVIDE
+  var pivot = Math.floor(array.length / 2);
+
+  var leftHalf = mergeSort(array.slice(0, pivot));
+  var rightHalf = mergeSort(array.slice(pivot));
+
+  // CONQUER
+  var merged = [];
+
+  while (leftHalf.length && rightHalf.length) {
+    if (leftHalf[0] < rightHalf[0]) {
+      merged.push(leftHalf.shift());
+    } else {
+      merged.push(rightHalf.shift());
+    }
+  }
+
+  // handle the leftovers
+  // merged.push.apply(merged, leftHalf);
+  // merged.push.apply(merged, rightHalf);
+  merged = [...merged, ...leftHalf, ...rightHalf];
+
+  return merged;
 };
 
 // 40. Deeply clone objects and arrays.
@@ -669,4 +719,5 @@ var mergeSort = function(array) {
 // console.log(obj2); // {a:1,b:{bb:{bbb:2}},c:3}
 // obj1 === obj2 // false
 var clone = function(input) {
+
 };
